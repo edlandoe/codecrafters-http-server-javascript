@@ -5,6 +5,7 @@ console.log("Logs from your program will appear here!");
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
+    console.log(data.toString().split(" "));
     const [method, path, version] = data.toString().split(" ")
     console.log(`method: ${method}\npath: ${path}\nversion: ${version}`)
 
