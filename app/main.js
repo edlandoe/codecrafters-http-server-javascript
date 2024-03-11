@@ -3,11 +3,13 @@ const fs = require("fs");
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
-    const [startLine, ...Headers] = data.toString().trim().split("\r\n");
+    const [startLine, ...lines] = data.toString().trim().split("\r\n");
     const [method, path, version] = startLine.toString().trim().split(" ");
 
-    console.log(Headers);
-
+    const emptyLineIndex = lines.indexOf("");
+    const headers = lines.slice(0, emptyLineIndex);
+    const body = lines.join(emptyLineIndex + 1);
+    console.log(`Header: ${headers}\r\nBody: ${body}`);
     switch (method) {
       case "GET":
         if (path === "/") {
@@ -18,7 +20,7 @@ const server = net.createServer((socket) => {
 
           socket.write(httpResponse);
         } else if (path.startsWith("/user-agent")) {
-          let userAgent = Headers[1].split(" ")[1];
+          let userAgent = headers[1].split(" ")[1];
           let httpResponse = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`;
 
           socket.write(httpResponse);
@@ -46,7 +48,7 @@ const server = net.createServer((socket) => {
         if (path.startsWith("/files")) {
           let filename = path.slice(7);
           const directoryPath = process.argv[3];
-          const fileContent = Headers[5];
+          const fileContent = body;
 
           console.log("Writing File...");
           fs.writeFileSync(directoryPath + filename, fileContent);
