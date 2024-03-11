@@ -26,8 +26,10 @@ const server = net.createServer((socket) => {
       console.log(`filename: ${filename}\nfullpath: ${fullPath}`);
 
       if (fs.existsSync(fullPath)) {
-        let fileContent = fs.readFileSync(fullPath, "utf8");
-        let httpResponse = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}`;
+        let fileContent = fs.readFileSync(fullPath);
+        let httpResponse = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${Buffer.byteLength(
+          fileContent
+        )}\r\n\r\n${fileContent}`;
 
         console.log(httpResponse);
         socket.write(httpResponse);
