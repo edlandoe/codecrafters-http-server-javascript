@@ -5,7 +5,8 @@ const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     const [startLine, ...Headers] = data.toString().trim().split("\r\n");
     const [method, path, version] = startLine.toString().trim().split(" ");
-    console.log(startLine);
+
+    console.log(Headers);
 
     switch (method) {
       case "GET":
@@ -39,20 +40,23 @@ const server = net.createServer((socket) => {
           }
         } else {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-          socket.end();
         }
+        break;
       case "POST":
         if (path.startsWith("/files")) {
           let filename = path.slice(7);
           const directoryPath = process.argv[3];
-          const fileContent = fs.readFileSync(filename, "utf8");
+          const fileContent = Headers[5];
 
+          console.log("Writing File...");
           fs.writeFileSync(directoryPath + filename, fileContent);
-          socket.write("HTTP/1.1 201 OK");
+          console.log("File Write Success ✅");
+
+          socket.write("HTTP/1.1 201 OK\r\n\r\n");
         } else {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-          socket.end();
         }
+        break;
     }
   });
 
